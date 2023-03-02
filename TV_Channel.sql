@@ -13,6 +13,7 @@ and content_channel != "N/A"
 and num_seconds_played_no_ads > 0 
 and regexp_replace(lower(content_channel), r"[:,.&'!]", '') not like "%channel%"
 and regexp_replace(lower(content_channel), r"[:,.&'!]", '') not like "%premium%"
+and content_channel like "% | %" or length(content_channel) = 4 or (regexp_contains(content_channel, r"\w{4}-\w{2}") and length(content_channel) <= 7)
 group by 1,2,3,4
 order by 1 desc,2
 
