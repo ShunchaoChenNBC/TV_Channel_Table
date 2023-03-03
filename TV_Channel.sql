@@ -1,19 +1,26 @@
+
 create or replace table `nbcu-ds-sandbox-a-001.Shunchao_Sandbox.TV_Channels` as
 
-SELECT 
+select 
+a.adobe_date,
+a.Hour,
+a.adobe_tracking_id,
+lower(a.Channels) as Channels,
+round(sum(a.num_seconds_played_no_ads)/3600,1) as Watch_Time
+from
+(SELECT 
 adobe_date,
-EXTRACT(HOUR FROM adobe_timestamp) as Hours,
+EXTRACT(HOUR FROM adobe_timestamp) as Hour,
 adobe_tracking_id,
-regexp_replace(lower(content_channel), r"[:,.&'!]", '') as Channels,
-round(avg(num_seconds_played_no_ads)/3600,2) as AVG_Watch_Hours
+case when consumption_type = 'Virtual Channel' then display_name
+	         else playlist_name end as Channels,
+num_seconds_played_no_ads 
 FROM `nbcu-ds-prod-001.PeacockDataMartSilver.SILVER_VIDEO` 
-WHERE 1=1
-and adobe_date between "2023-02-01" and "2023-02-16"
-and content_channel != "N/A"
-and num_seconds_played_no_ads > 0 
-and regexp_replace(lower(content_channel), r"[:,.&'!]", '') not like "%channel%"
-and regexp_replace(lower(content_channel), r"[:,.&'!]", '') not like "%premium%"
-and content_channel like "% | %" or length(content_channel) = 4 or (regexp_contains(content_channel, r"\w{4}-\w{2}") and length(content_channel) <= 7)
+WHERE adobe_date between "2022-11-01" and "2023-03-02"
+and num_seconds_played_no_ads > 0) a
+where 1=1
+and (lower(Channels) LIKE "%-tv%" or Channels like "% | %" or length(Channels) = 4 or (regexp_contains(Channels, r"\w{4}-\w{2}") and length(Channels) <= 7)) 
+and lower(Channels) not in ("kane","edge","omos","otis","cnbc","news","imsa","bige","golf")
 group by 1,2,3,4
-order by 1 desc,2
+
 
