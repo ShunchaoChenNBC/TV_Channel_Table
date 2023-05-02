@@ -23,9 +23,11 @@ device_platform,
 device_name,
 num_seconds_played_no_ads 
 FROM `nbcu-ds-prod-001.PeacockDataMartSilver.SILVER_VIDEO` 
-WHERE adobe_date between "2022-11-01" and "2023-04-04"
+WHERE adobe_date between "2022-11-01" and "2023-05-01"
 and num_seconds_played_no_ads > 0) a
 where 1=1
-and (lower(Channels) LIKE "%-tv%" or Channels like "% | %" or length(Channels) = 4 or (regexp_contains(Channels, r"\w{4}-\w{2}") and length(Channels) <= 7)) 
+and (lower(Channels) LIKE "%-tv%" or Channels like "% | %" 
+or length(Channels) = 4 or (regexp_contains(Channels, r"\w{4}-\w{2}") and length(Channels) <= 7)
+or lower(Channels) in (select distinct lower(string_field_0) from `nbcu-ds-sandbox-a-001.LaluO_Sandbox.affiliate_channels`)) -- incl all titles from another reference table
 and lower(Channels) not in ("kane","edge","omos","otis","cnbc","news","imsa","bige","golf")
 group by 1,2,3,4,5
